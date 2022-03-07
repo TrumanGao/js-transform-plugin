@@ -1,6 +1,7 @@
 import j from 'jscodeshift';
-import { template } from '@babel/core';
-import { findRequire, findExports } from '../constants/findTemplate';
+import babel from '@babel/core';
+const { template } = babel;
+import { findRequire, findExports } from '../constants/findTemplate.js';
 
 // 引入变量
 export function require2Import (code) {
@@ -39,7 +40,9 @@ export function require2Import (code) {
         }
 
         // console.log('新创建的表达式：replaceDeclaratino', replaceDeclaration);
-        j(path).replaceWith(replaceDeclaration);
+        if (replaceDeclaration) {
+            j(path).replaceWith(replaceDeclaration);
+        }
     });
 
     return ast.toSource();
@@ -94,7 +97,9 @@ export function exports2Export (code) {
         }
 
         // console.log('新创建的表达式：replaceDeclaratino', replaceDeclaration);
-        j(path).replaceWith(replaceDeclaration);
+        if (replaceDeclaration) {
+            j(path).replaceWith(replaceDeclaration);
+        }
     });
 
     return ast.toSource();

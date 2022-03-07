@@ -1,16 +1,24 @@
 {
     "name": "ast-plugin",
     "version": "1.0.0",
-    "main": "parser.js",
+    "main": "dist/index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "build": "rollup -c"
     },
-    "author": "",
+    "bin": {
+        "astConvert": "./src/index.js"
+    },
+    "author": "TrumanGao",
     "license": "ISC",
     "description": "",
+    "type": "module",
     "dependencies": {
         "@babel/core": "^7.17.5",
         "jscodeshift": "^0.13.1"
     },
-    "devDependencies": {}
+    "devDependencies": {
+        "@babel/preset-env": "^7.16.11",
+        "rollup": "^2.70.0",
+        "rollup-plugin-babel": "^4.4.0"
+    }
 }
