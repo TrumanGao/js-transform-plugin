@@ -45,7 +45,7 @@ export function require2Import (code) {
     return ast.toSource();
 }
 
-// 导出变量 module.exports = a / module.exports = { a, b }
+// 导出变量
 export function exports2Export (code) {
     let ast = j(code);
 
@@ -54,6 +54,7 @@ export function exports2Export (code) {
         let replaceDeclaration;
 
         if (right.type === j.Identifier) {
+            // module.exports = a
             const varName = right.name;
 
             const replaceDeclarationTemplate = template(`
@@ -65,6 +66,7 @@ export function exports2Export (code) {
                 varName,
             });
         } else if (right.type === j.ObjectExpression) {
+            // module.exports = { a, b }
             const varNames = right.properties.map(property => property.key.name).join(', ');
 
             const replaceDeclarationTemplate = template(`
@@ -75,24 +77,21 @@ export function exports2Export (code) {
             replaceDeclaration = replaceDeclarationTemplate({
                 varNames,
             });
-        }
-        // else if (right.type === j.NewExpression) {
-        //     // right.callee right.arguments
-        //     const calleeName = right.callee.name;
-        //     const varName = `${calleeName.charAt(0).toLocaleLowerCase()}${calleeName.slice(1)}`;
-        //     const arguments = right.arguments.map(arg => arg.name).join(', ');
+        } else if (right.type === j.NewExpression) {
+            // module.exports = new Abc()
+            const calleeName = right.callee.name;
+            const varName = `${calleeName.charAt(0).toLocaleLowerCase()}${calleeName.slice(1)}`;
+            const argumentsStr = right.arguments.map(arg => arg.name).join(', ');
 
-        //     const replaceDeclarationTemplate = template(`
-        //     export {
-        //         %%varName%%: new %%calleeName%%(%%arguments%%),
-        //     }
-        //     `);
-        //     replaceDeclaration = replaceDeclarationTemplate({
-        //         calleeName,
-        //         varName,
-        //         arguments,
-        //     });
-        // }
+            const replaceDeclarationTemplate = template(
+                `export const %%varName%% = new %%calleeName%%(%%argumentsStr%%)`,
+            );
+            replaceDeclaration = replaceDeclarationTemplate({
+                calleeName,
+                varName,
+                argumentsStr,
+            });
+        }
 
         // console.log('新创建的表达式：replaceDeclaratino', replaceDeclaration);
         j(path).replaceWith(replaceDeclaration);

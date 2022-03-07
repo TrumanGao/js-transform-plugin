@@ -26,5 +26,6 @@ function loadProject (input) {
         return Promise.reject(error);
     });
 }
-const name = new Date();
-export { VirtualMachine1, name: (new Date()) };
+
+export { VirtualMachine1 };
+export const name = new Date();
