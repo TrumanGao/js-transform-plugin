@@ -1,6 +1,6 @@
 const j = require('jscodeshift');
 
-// 不区分引入语法，减少循环优化性能
+// 不区分导入语法，减少循环优化性能
 const findRequire = {
     declarations: [
         {

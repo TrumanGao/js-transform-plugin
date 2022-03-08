@@ -2,13 +2,13 @@ const j = require('jscodeshift');
 const { template } = require('@babel/core');
 const { findRequire, findExports } = require('../constants/findTemplate.js');
 
-// 引入变量
+// 导入变量
 function require2Import (code) {
-    console.log('进入引入变量函数');
+    console.log('进入导入变量函数');
     const ast = j(code, {
         parser: require('recast/parsers/typescript'),
     });
-    // console.log('引入变量 ast：', ast);
+    // console.log('导入变量 ast：', ast);
 
     ast.find(j.VariableDeclaration, findRequire).forEach(path => {
         const { id, init } = path.value.declarations[0];
@@ -17,7 +17,7 @@ function require2Import (code) {
         console.log('导入变量');
 
         if (path.parent.value.type === 'Program') {
-            // 根节点引入，转为 import
+            // 根节点导入，转为 import
 
             if (id.type === j.Identifier.name) {
                 // const a = require('a')
@@ -34,7 +34,24 @@ function require2Import (code) {
             } else if (id.type === j.ObjectPattern.name) {
                 // const { b, c } = require('bc')
                 console.log('导入多个', j.ObjectPattern);
-                const varNames = id.properties.map(property => property.key.name).join(',');
+                const varNames = id.properties
+                    .map(property => {
+                        if (property.key.type === j.Identifier.name && property.value.type === j.Identifier.name) {
+                            if (property.key.name === property.value.name) {
+                                return property.key.name;
+                            } else {
+                                return `${property.key.name}: ${property.value.name}`;
+                            }
+                        } else if (
+                            property.key.type === j.Identifier.name &&
+                            property.value.type === j.ObjectPattern.name
+                        ) {
+                            return `${property.key.name}: {
+                                ${property.value.properties.map(p => p.key.name).join(', ')}
+                            }`;
+                        }
+                    })
+                    .join(', ');
 
                 const replaceDeclarationTemplate = template(`
                 import { %%varNames%% } from %%importPath%%
@@ -45,7 +62,7 @@ function require2Import (code) {
                 });
             }
         } else {
-            // 嵌套引入，转为 import()
+            // 嵌套导入，转为 import()
         }
 
         if (replaceDeclaration) {
@@ -85,7 +102,24 @@ function exports2Export (code) {
         } else if (right.type === j.ObjectExpression.name) {
             // module.exports = { a, b }
             console.log('导出多个', j.ObjectExpression);
-            const varNames = right.properties.map(property => property.key.name).join(', ');
+            const varNames = right.properties
+                .map(property => {
+                    if (property.key.type === j.Identifier.name && property.value.type === j.Identifier.name) {
+                        if (property.key.name === property.value.name) {
+                            return property.key.name;
+                        } else {
+                            return `${property.key.name}: ${property.value.name}`;
+                        }
+                    } else if (
+                        property.key.type === j.Identifier.name &&
+                        property.value.type === j.ObjectPattern.name
+                    ) {
+                        return `${property.key.name}: {
+                            ${property.value.properties.map(p => p.key.name).join(', ')}
+                        }`;
+                    }
+                })
+                .join(', ');
 
             const replaceDeclarationTemplate = template(`
             export {
