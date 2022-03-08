@@ -18,13 +18,13 @@ export const findExports = {
     expression: {
         operator: '=',
         left: {
-            type: j.MemberExpression,
+            type: j.MemberExpression.name,
             object: {
-                type: j.Identifier,
+                type: j.Identifier.name,
                 name: 'module',
             },
             property: {
-                type: j.Identifier,
+                type: j.Identifier.name,
                 name: 'exports',
             },
         },

@@ -15,16 +15,21 @@ export function require2Import (code) {
         if (path.parent.value.type === 'Program') {
             // 根节点引入，转为 import
 
-            if (id.type === j.Identifier) {
+            if (id.type === j.Identifier.name) {
                 // const a = require('a')
+                console.log('导入单个', j.Identifier);
                 const varName = id.name;
 
-                replaceDeclaration = j.importDeclaration(
-                    [ j.importSpecifier(j.identifier(varName), j.identifier(varName)) ],
-                    j.stringLiteral(importPath),
-                );
-            } else if (id.type === j.ObjectPattern) {
+                const replaceDeclarationTemplate = template(`
+                import { %%varName%% } from %%importPath%%
+                `);
+                replaceDeclaration = replaceDeclarationTemplate({
+                    varName,
+                    importPath,
+                });
+            } else if (id.type === j.ObjectPattern.name) {
                 // const { b, c } = require('bc')
+                console.log('导入多个', j.ObjectPattern);
                 const varNames = id.properties.map(property => property.key.name).join(',');
 
                 const replaceDeclarationTemplate = template(`
@@ -39,7 +44,6 @@ export function require2Import (code) {
             // 嵌套引入，转为 import()
         }
 
-        // console.log('新创建的表达式：replaceDeclaratino', replaceDeclaration);
         if (replaceDeclaration) {
             j(path).replaceWith(replaceDeclaration);
         }
@@ -56,8 +60,9 @@ export function exports2Export (code) {
         const { left, right } = path.value.expression;
         let replaceDeclaration;
 
-        if (right.type === j.Identifier) {
+        if (right.type === j.Identifier.name) {
             // module.exports = a
+            console.log('导出单个', j.Identifier);
             const varName = right.name;
 
             const replaceDeclarationTemplate = template(`
@@ -68,20 +73,22 @@ export function exports2Export (code) {
             replaceDeclaration = replaceDeclarationTemplate({
                 varName,
             });
-        } else if (right.type === j.ObjectExpression) {
+        } else if (right.type === j.ObjectExpression.name) {
             // module.exports = { a, b }
+            console.log('导出多个', j.ObjectExpression);
             const varNames = right.properties.map(property => property.key.name).join(', ');
 
             const replaceDeclarationTemplate = template(`
-            export { 
+            export {
                 %%varNames%%,
             }
             `);
             replaceDeclaration = replaceDeclarationTemplate({
                 varNames,
             });
-        } else if (right.type === j.NewExpression) {
+        } else if (right.type === j.NewExpression.name) {
             // module.exports = new Abc()
+            console.log('导出类的实例化', j.NewExpression);
             const calleeName = right.callee.name;
             const varName = `${calleeName.charAt(0).toLocaleLowerCase()}${calleeName.slice(1)}`;
             const argumentsStr = right.arguments.map(arg => arg.name).join(', ');
@@ -96,7 +103,6 @@ export function exports2Export (code) {
             });
         }
 
-        // console.log('新创建的表达式：replaceDeclaratino', replaceDeclaration);
         if (replaceDeclaration) {
             j(path).replaceWith(replaceDeclaration);
         }
