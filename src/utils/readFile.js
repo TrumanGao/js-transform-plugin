@@ -1,8 +1,8 @@
-import fs from 'fs';
-import path from 'path';
-import { require2Import, exports2Export } from './cjs2esm.js';
+const fs = require('fs');
+const path = require('path');
+const { require2Import, exports2Export } = require('./cjs2esm.js');
 
-export function readFile (argvPath = `${process.cwd()}\\src`) {
+function readFile (argvPath = `${process.cwd()}\\src`) {
     fs.readdir(argvPath, (err, files) => {
         if (err) {
             throw err;
@@ -43,3 +43,7 @@ export function readFile (argvPath = `${process.cwd()}\\src`) {
         });
     });
 }
+
+module.exports = {
+    readFile,
+};

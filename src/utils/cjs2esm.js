@@ -1,10 +1,9 @@
-import j from 'jscodeshift';
-import babel from '@babel/core';
-const { template } = babel;
-import { findRequire, findExports } from '../constants/findTemplate.js';
+const j = require('jscodeshift');
+const { template } = require('@babel/core');
+const { findRequire, findExports } = require('../constants/findTemplate.js');
 
 // 引入变量
-export function require2Import (code) {
+function require2Import (code) {
     console.log('进入引入变量函数');
     const ast = j(code, {
         parser: require('recast/parsers/typescript'),
@@ -58,7 +57,7 @@ export function require2Import (code) {
 }
 
 // 导出变量
-export function exports2Export (code) {
+function exports2Export (code) {
     console.log('进入导出变量函数');
     let ast = j(code, {
         parser: require('recast/parsers/typescript'),
@@ -120,3 +119,8 @@ export function exports2Export (code) {
 
     return ast.toSource();
 }
+
+module.exports = {
+    require2Import,
+    exports2Export,
+};

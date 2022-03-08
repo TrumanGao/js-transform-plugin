@@ -1,7 +1,7 @@
-import j from 'jscodeshift';
+const j = require('jscodeshift');
 
 // 不区分引入语法，减少循环优化性能
-export const findRequire = {
+const findRequire = {
     declarations: [
         {
             init: {
@@ -14,7 +14,7 @@ export const findRequire = {
 };
 
 // 不区分导出语法，减少循环优化性能
-export const findExports = {
+const findExports = {
     expression: {
         operator: '=',
         left: {
@@ -29,4 +29,9 @@ export const findExports = {
             },
         },
     },
+};
+
+module.exports = {
+    findRequire,
+    findExports,
 };
