@@ -6,8 +6,10 @@ import { findRequire, findExports } from '../constants/findTemplate.js';
 // 引入变量
 export function require2Import (code) {
     console.log('进入引入变量函数');
-    const ast = j(code);
-    console.log('引入变量 ast：', ast);
+    const ast = j(code, {
+        parser: require('recast/parsers/typescript'),
+    });
+    // console.log('引入变量 ast：', ast);
 
     ast.find(j.VariableDeclaration, findRequire).forEach(path => {
         const { id, init } = path.value.declarations[0];
@@ -58,8 +60,10 @@ export function require2Import (code) {
 // 导出变量
 export function exports2Export (code) {
     console.log('进入导出变量函数');
-    let ast = j(code);
-    console.log('导出变量 ast：', ast);
+    let ast = j(code, {
+        parser: require('recast/parsers/typescript'),
+    });
+    // console.log('导出变量 ast：', ast);
 
     ast.find(j.ExpressionStatement, findExports).forEach(path => {
         const { left, right } = path.value.expression;

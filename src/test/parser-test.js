@@ -1,5 +1,4 @@
-// 导入语法
-const { VirtualMachine1 } = require('./virtual-machine');
+import { VirtualMachine1 } from "./virtual-machine";
 import { VirtualMachine2 } from './virtual-machine';
 
 // @ts-ignore

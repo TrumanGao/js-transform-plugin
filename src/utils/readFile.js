@@ -25,7 +25,7 @@ export function readFile (argvPath = `${process.cwd()}\\src`) {
                         const result = [ require2Import, exports2Export ].reduce((code, currentFn) => {
                             return currentFn(code);
                         }, code);
-                        console.log('当前遍历的文件编译结果', result);
+                        // console.log('当前遍历的文件编译结果', result);
 
                         fs.writeFile(fPath, result, 'utf8', err => {
                             if (err) {
@@ -36,8 +36,8 @@ export function readFile (argvPath = `${process.cwd()}\\src`) {
                         console.log('访问文件 - 文件未通过校验', fPath);
                     }
                 } else {
-                    // console.log('访问文件夹：', fPath);
-                    // readFile(fPath);
+                    console.log('访问文件夹：', fPath);
+                    readFile(fPath);
                 }
             });
         });
