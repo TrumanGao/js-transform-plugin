@@ -1,17 +1,18 @@
 {
-    "name": "ast-plugin",
+    "name": "js-transform-plugin",
     "version": "1.0.0",
-    "main": "dist/index.js",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
     "scripts": {
         "build": "rollup -c"
     },
     "bin": {
-        "astConvert": "./src/index.js"
+        "astConvert": "./dist/index.js"
     },
+    "type": "commonjs",
     "author": "TrumanGao",
     "license": "ISC",
     "description": "",
-    "type": "module",
     "dependencies": {
         "@babel/core": "^7.17.5",
         "jscodeshift": "^0.13.1"

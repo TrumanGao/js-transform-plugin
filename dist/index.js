@@ -1,7 +1,16 @@
-import fs from 'fs';
-import path from 'path';
-import j from 'jscodeshift';
-import babel from '@babel/core';
+'use strict';
+
+var fs = require('fs');
+var path = require('path');
+var j = require('jscodeshift');
+var babel = require('@babel/core');
+
+function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+
+var fs__default = /*#__PURE__*/_interopDefaultLegacy(fs);
+var path__default = /*#__PURE__*/_interopDefaultLegacy(path);
+var j__default = /*#__PURE__*/_interopDefaultLegacy(j);
+var babel__default = /*#__PURE__*/_interopDefaultLegacy(babel);
 
 var findRequire = {
   declarations: [{
@@ -17,85 +26,106 @@ var findExports = {
   expression: {
     operator: '=',
     left: {
-      type: j.MemberExpression,
+      type: j__default["default"].MemberExpression.name,
       object: {
-        type: j.Identifier,
+        type: j__default["default"].Identifier.name,
         name: 'module'
       },
       property: {
-        type: j.Identifier,
+        type: j__default["default"].Identifier.name,
         name: 'exports'
       }
     }
   }
 };
 
-var template = babel.template;
+var template = babel__default["default"].template;
 
 function require2Import(code) {
-  var ast = j(code);
-  ast.find(j.VariableDeclaration, findRequire).forEach(function (path) {
+  console.log('进入引入变量函数');
+  var ast = j__default["default"](code, {
+    parser: require('recast/parsers/typescript')
+  }); // console.log('引入变量 ast：', ast);
+
+  ast.find(j__default["default"].VariableDeclaration, findRequire).forEach(function (path) {
     var _path$value$declarati = path.value.declarations[0],
         id = _path$value$declarati.id,
         init = _path$value$declarati.init;
     var importPath = init.arguments[0].value;
     var replaceDeclaration; // 用于替换的表达式
 
+    console.log('导入变量');
+
     if (path.parent.value.type === 'Program') {
       // 根节点引入，转为 import
-      if (id.type === j.Identifier) {
+      if (id.type === j__default["default"].Identifier.name) {
         // const a = require('a')
+        console.log('导入单个', j__default["default"].Identifier);
         var varName = id.name;
-        replaceDeclaration = j.importDeclaration([j.importSpecifier(j.identifier(varName), j.identifier(varName))], j.stringLiteral(importPath));
-      } else if (id.type === j.ObjectPattern) {
+        var replaceDeclarationTemplate = template("\n                import { %%varName%% } from %%importPath%%\n                ");
+        replaceDeclaration = replaceDeclarationTemplate({
+          varName: varName,
+          importPath: importPath
+        });
+      } else if (id.type === j__default["default"].ObjectPattern.name) {
         // const { b, c } = require('bc')
+        console.log('导入多个', j__default["default"].ObjectPattern);
         var varNames = id.properties.map(function (property) {
           return property.key.name;
         }).join(',');
-        var replaceDeclarationTemplate = template("\n                import { %%varNames%% } from %%importPath%%\n                ");
-        replaceDeclaration = replaceDeclarationTemplate({
+
+        var _replaceDeclarationTemplate = template("\n                import { %%varNames%% } from %%importPath%%\n                ");
+
+        replaceDeclaration = _replaceDeclarationTemplate({
           varNames: varNames,
           importPath: importPath
         });
       }
-    } // console.log('新创建的表达式：replaceDeclaratino', replaceDeclaration);
-
+    }
 
     if (replaceDeclaration) {
-      j(path).replaceWith(replaceDeclaration);
+      j__default["default"](path).replaceWith(replaceDeclaration);
     }
   });
   return ast.toSource();
 } // 导出变量
 
 function exports2Export(code) {
-  var ast = j(code);
-  ast.find(j.ExpressionStatement, findExports).forEach(function (path) {
+  console.log('进入导出变量函数');
+  var ast = j__default["default"](code, {
+    parser: require('recast/parsers/typescript')
+  }); // console.log('导出变量 ast：', ast);
+
+  ast.find(j__default["default"].ExpressionStatement, findExports).forEach(function (path) {
     var _path$value$expressio = path.value.expression;
         _path$value$expressio.left;
         var right = _path$value$expressio.right;
     var replaceDeclaration;
+    console.log('导出变量');
 
-    if (right.type === j.Identifier) {
+    if (right.type === j__default["default"].Identifier.name) {
       // module.exports = a
+      console.log('导出单个', j__default["default"].Identifier);
       var varName = right.name;
       var replaceDeclarationTemplate = template("\n            export { \n                %%varName%%,\n            } \n            ");
       replaceDeclaration = replaceDeclarationTemplate({
         varName: varName
       });
-    } else if (right.type === j.ObjectExpression) {
+    } else if (right.type === j__default["default"].ObjectExpression.name) {
       // module.exports = { a, b }
+      console.log('导出多个', j__default["default"].ObjectExpression);
       var varNames = right.properties.map(function (property) {
         return property.key.name;
       }).join(', ');
 
-      var _replaceDeclarationTemplate = template("\n            export { \n                %%varNames%%,\n            }\n            ");
+      var _replaceDeclarationTemplate2 = template("\n            export {\n                %%varNames%%,\n            }\n            ");
 
-      replaceDeclaration = _replaceDeclarationTemplate({
+      replaceDeclaration = _replaceDeclarationTemplate2({
         varNames: varNames
       });
-    } else if (right.type === j.NewExpression) {
+    } else if (right.type === j__default["default"].NewExpression.name) {
       // module.exports = new Abc()
+      console.log('导出类的实例化', j__default["default"].NewExpression);
       var calleeName = right.callee.name;
 
       var _varName = "".concat(calleeName.charAt(0).toLocaleLowerCase()).concat(calleeName.slice(1));
@@ -104,55 +134,58 @@ function exports2Export(code) {
         return arg.name;
       }).join(', ');
 
-      var _replaceDeclarationTemplate2 = template("export const %%varName%% = new %%calleeName%%(%%argumentsStr%%)");
+      var _replaceDeclarationTemplate3 = template("export const %%varName%% = new %%calleeName%%(%%argumentsStr%%)");
 
-      replaceDeclaration = _replaceDeclarationTemplate2({
+      replaceDeclaration = _replaceDeclarationTemplate3({
         calleeName: calleeName,
         varName: _varName,
         argumentsStr: argumentsStr
       });
-    } // console.log('新创建的表达式：replaceDeclaratino', replaceDeclaration);
-
+    }
 
     if (replaceDeclaration) {
-      j(path).replaceWith(replaceDeclaration);
+      j__default["default"](path).replaceWith(replaceDeclaration);
     }
   });
   return ast.toSource();
 }
 
 function readFile() {
-  var argvPath = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "".concat(process.cwd(), "/src");
-  console.log('传入的参数path', argvPath);
-  fs.readdir(argvPath, function (err, files) {
+  var argvPath = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "".concat(process.cwd(), "\\src");
+  fs__default["default"].readdir(argvPath, function (err, files) {
     if (err) {
       throw err;
     }
 
     files.forEach(function (file) {
-      var fPath = path.join(argvPath, file); // console.log('当前遍历的绝对路径', fPath);
-
-      fs.stat(fPath, function (err, stat) {
+      var fPath = path__default["default"].join(argvPath, file);
+      fs__default["default"].stat(fPath, function (err, stat) {
         if (err) {
           throw err;
         }
 
         if (stat.isFile()) {
+          console.log('访问文件：', fPath);
+
           if (/\.(j|t)s$/.test(fPath)) {
-            var code = fs.readFileSync(fPath, {
+            var code = fs__default["default"].readFileSync(fPath, {
               encoding: 'utf8'
             }); // console.log('当前遍历的文件内容', code);
 
-            var result = require2Import(code);
-            result = exports2Export(result);
-            console.log('当前遍历的文件编译结果', result);
-            fs.writeFile(fPath, result, 'utf8', function (err) {
+            var result = [require2Import, exports2Export].reduce(function (code, currentFn) {
+              return currentFn(code);
+            }, code); // console.log('当前遍历的文件编译结果', result);
+
+            fs__default["default"].writeFile(fPath, result, 'utf8', function (err) {
               if (err) {
                 console.log('写入错误 err：', err);
               }
             });
+          } else {
+            console.log('访问文件 - 文件未通过校验', fPath);
           }
         } else {
+          console.log('访问文件夹：', fPath);
           readFile(fPath);
         }
       });
