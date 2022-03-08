@@ -36,8 +36,8 @@ export function readFile (argvPath = `${process.cwd()}\\src`) {
                         console.log('访问文件 - 文件未通过校验', fPath);
                     }
                 } else {
-                    console.log('访问文件夹：', fPath);
-                    readFile(fPath);
+                    // console.log('访问文件夹：', fPath);
+                    // readFile(fPath);
                 }
             });
         });
