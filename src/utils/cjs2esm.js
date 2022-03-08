@@ -46,9 +46,7 @@ function require2Import (code) {
                             property.key.type === j.Identifier.name &&
                             property.value.type === j.ObjectPattern.name
                         ) {
-                            return `${property.key.name}: {
-                                ${property.value.properties.map(p => p.key.name).join(', ')}
-                            }`;
+                            // const { b, c: {d, e} } = require('bc') 无法直接转换，暂不处理
                         }
                     })
                     .join(', ');
@@ -104,19 +102,23 @@ function exports2Export (code) {
             console.log('导出多个', j.ObjectExpression);
             const varNames = right.properties
                 .map(property => {
-                    if (property.key.type === j.Identifier.name && property.value.type === j.Identifier.name) {
-                        if (property.key.name === property.value.name) {
-                            return property.key.name;
-                        } else {
-                            return `${property.key.name}: ${property.value.name}`;
-                        }
-                    } else if (
-                        property.key.type === j.Identifier.name &&
-                        property.value.type === j.ObjectPattern.name
-                    ) {
-                        return `${property.key.name}: {
+                    if (property.type === j.Property.name) {
+                        if (property.key.type === j.Identifier.name && property.value.type === j.Identifier.name) {
+                            if (property.key.name === property.value.name) {
+                                return property.key.name;
+                            } else {
+                                return `${property.key.name}: ${property.value.name}`;
+                            }
+                        } else if (
+                            property.key.type === j.Identifier.name &&
+                            property.value.type === j.ObjectPattern.name
+                        ) {
+                            return `${property.key.name}: {
                             ${property.value.properties.map(p => p.key.name).join(', ')}
-                        }`;
+                            }`;
+                        }
+                    } else if (property.type === j.SpreadProperty.name) {
+                        return `...${property.argument.name}`;
                     }
                 })
                 .join(', ');
