@@ -1,6 +1,6 @@
 {
     "name": "js-transform-plugin",
-    "version": "1.1.2",
+    "version": "1.1.4",
     "main": "./src/index.js",
     "bin": {
         "js-transform": "./src/index.js"
