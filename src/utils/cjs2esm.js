@@ -38,9 +38,11 @@ function require2Import (code) {
                     .map(property => {
                         if (property.key.type === j.Identifier.name && property.value.type === j.Identifier.name) {
                             if (property.key.name === property.value.name) {
+                                // const { b, c } = require('bc')
                                 return property.key.name;
                             } else {
-                                return `${property.key.name}: ${property.value.name}`;
+                                // const { a:aa } = require('bc')
+                                return `${property.key.name} as ${property.value.name}`;
                             }
                         } else if (
                             property.key.type === j.Identifier.name &&
@@ -103,22 +105,26 @@ function exports2Export (code) {
             const varNames = right.properties
                 .map(property => {
                     if (property.type === j.ObjectProperty.name) {
+                        // 键值对
                         if (property.key.type === j.Identifier.name && property.value.type === j.Identifier.name) {
                             if (property.key.name === property.value.name) {
+                                // module.exports = { a }
                                 return property.key.name;
                             } else {
+                                // module.exports = { a: '123' }
                                 return `${property.value.name} as ${property.key.name}`;
                             }
                         } else if (
                             property.key.type === j.Identifier.name &&
                             property.value.type === j.ObjectPattern.name
                         ) {
+                            // module.exports = { a: { b, c, d} }
                             return `${property.key.name}: {
                             ${property.value.properties.map(p => p.key.name).join(', ')}
                             }`;
                         }
                     } else if (property.type === j.SpreadElement.name) {
-                        return `...${property.argument.name}`;
+                        // module.exports = { ...a } 无法直接转换，暂不处理
                     } else {
                         // 暂不处理
                     }
