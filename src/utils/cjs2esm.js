@@ -102,12 +102,12 @@ function exports2Export (code) {
             console.log('导出多个', j.ObjectExpression);
             const varNames = right.properties
                 .map(property => {
-                    if (property.type === j.Property.name) {
+                    if (property.type === j.ObjectProperty.name) {
                         if (property.key.type === j.Identifier.name && property.value.type === j.Identifier.name) {
                             if (property.key.name === property.value.name) {
                                 return property.key.name;
                             } else {
-                                return `${property.key.name}: ${property.value.name}`;
+                                return `${property.value.name} as ${property.key.name}`;
                             }
                         } else if (
                             property.key.type === j.Identifier.name &&
@@ -117,8 +117,10 @@ function exports2Export (code) {
                             ${property.value.properties.map(p => p.key.name).join(', ')}
                             }`;
                         }
-                    } else if (property.type === j.SpreadProperty.name) {
+                    } else if (property.type === j.SpreadElement.name) {
                         return `...${property.argument.name}`;
+                    } else {
+                        // 暂不处理
                     }
                 })
                 .join(', ');
