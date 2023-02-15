@@ -1,16 +1,27 @@
 {
-    "name": "js-transform-plugin",
-    "version": "1.1.4",
-    "main": "./src/index.js",
-    "bin": {
-        "js-transform": "./src/index.js"
-    },
-    "type": "commonjs",
-    "author": "TrumanGao",
-    "license": "ISC",
-    "description": "ast plugin for transforming commonJS into ESmodule",
-    "dependencies": {
-        "@babel/core": "^7.17.5",
-        "jscodeshift": "^0.13.1"
-    }
+  "name": "js-transform-plugin",
+  "version": "1.1.5",
+  "description": "An ast plugin for transforming js/ts/jsx/tsx files from commonJS to ESmodule.",
+  "main": "./src/index.js",
+  "bin": {
+    "js-transform": "./src/index.js"
+  },
+  "type": "commonjs",
+  "author": "TrumanGao",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TrumanGao/js-transform-plugin.git"
+  },
+  "keywords": [
+    "babel",
+    "jscodeshift",
+    "module",
+    "commonjs",
+    "esmodules"
+  ],
+  "dependencies": {
+    "@babel/core": "^7.17.5",
+    "jscodeshift": "^0.13.1"
+  }
 }

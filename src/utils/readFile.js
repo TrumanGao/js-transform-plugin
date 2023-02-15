@@ -1,49 +1,54 @@
-const fs = require('fs');
-const path = require('path');
-const { require2Import, exports2Export } = require('./cjs2esm.js');
+const fs = require("fs");
+const path = require("path");
+const { require2Import, exports2Export } = require("./cjs2esm.js");
 
-function readFile (argvPath = `${process.cwd()}\\src`) {
-    fs.readdir(argvPath, (err, files) => {
+/**
+ * transform js/ts/jsx/tsx files in specifiedPath recursively from commonJS to ESmodule
+ * @param { string } specifiedPath default: process.cwd()
+ */
+function readFile(specifiedPath) {
+  if (!specifiedPath || typeof specifiedPath !== "string") {
+    throw new Error("required param: absolute path");
+  }
+  fs.readdir(specifiedPath, (err, files) => {
+    if (err) {
+      console.log("fs.readdir err: ", err);
+      throw err;
+    }
+    files.forEach((file) => {
+      let fPath = path.join(specifiedPath, file);
+
+      fs.stat(fPath, (err, stat) => {
         if (err) {
-            throw err;
+          console.log("fs.stat err: ", err);
+          throw err;
         }
-        files.forEach(file => {
-            let fPath = path.join(argvPath, file);
+        if (!stat.isFile()) {
+          console.log("folder: ", fPath);
+          readFile(fPath);
+        } else if (/\.(j|t)sx?$/.test(fPath)) {
+          console.log("\tfile: ", fPath);
+          const code = fs.readFileSync(fPath, {
+            encoding: "utf8",
+          });
+          const result = [require2Import, exports2Export].reduce(
+            (code, currentFn) => {
+              return currentFn(code);
+            },
+            code
+          );
 
-            fs.stat(fPath, (err, stat) => {
-                if (err) {
-                    throw err;
-                }
-                if (stat.isFile()) {
-                    console.log('访问文件：', fPath);
-                    if (/\.(j|t)s$/.test(fPath)) {
-                        const code = fs.readFileSync(fPath, {
-                            encoding: 'utf8',
-                        });
-
-                        // console.log('当前遍历的文件内容', code);
-                        const result = [ require2Import, exports2Export ].reduce((code, currentFn) => {
-                            return currentFn(code);
-                        }, code);
-                        // console.log('当前遍历的文件编译结果', result);
-
-                        fs.writeFile(fPath, result, 'utf8', err => {
-                            if (err) {
-                                console.log('写入错误 err：', err);
-                            }
-                        });
-                    } else {
-                        console.log('访问文件 - 文件未通过校验', fPath);
-                    }
-                } else {
-                    console.log('访问文件夹：', fPath);
-                    readFile(fPath);
-                }
-            });
-        });
+          fs.writeFile(fPath, result, "utf8", (err) => {
+            if (err) {
+              console.log("\tfs.writeFile err: ", err);
+            }
+          });
+        }
+      });
     });
+  });
 }
 
 module.exports = {
-    readFile,
+  readFile,
 };

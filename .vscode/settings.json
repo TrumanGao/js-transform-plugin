@@ -1,29 +1,13 @@
 {
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
-    },
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "remimarsal.prettier-now",
-    "[json]": {
-        "editor.defaultFormatter": "remimarsal.prettier-now"
-    },
-    "[jsonc]": {
-        "editor.defaultFormatter": "remimarsal.prettier-now"
-    },
-    "[javascript]": {
-        "editor.defaultFormatter": "remimarsal.prettier-now"
-    },
-    "[javascriptreact]": {
-        "editor.defaultFormatter": "remimarsal.prettier-now"
-    },
-    "[typescript]": {
-        "editor.defaultFormatter": "remimarsal.prettier-now"
-    },
-    // prettier 配置
-    "prettier.useTabs": false,
-    "prettier.arrowParens": false,
-    "prettier.spaceBeforeFunctionParen": true,
-    "prettier.jsxBracketSameLine": false,
-    "prettier.printWidth": 120,
-    "prettier.trailingComma": "all"
+  "files.autoSave": "onFocusChange",
+  "editor.formatOnSave": true,
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
