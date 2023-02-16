@@ -20,7 +20,7 @@ function require2Import(code) {
         const varName = id.name;
 
         const replaceDeclarationTemplate = template(`
-                import %%varName%% from %%importPath%%
+                import %%varName%% from %%importPath%%; 
                 `);
         replaceDeclaration = replaceDeclarationTemplate({
           varName,
@@ -58,7 +58,7 @@ function require2Import(code) {
           .join(", ");
 
         const replaceDeclarationTemplate = template(`
-                import { %%varNames%% } from %%importPath%%
+                import { %%varNames%% } from %%importPath%%; 
                 `);
         replaceDeclaration = replaceDeclarationTemplate({
           varNames,
@@ -94,7 +94,9 @@ function exports2Export(code) {
       // eg. module.exports = a
       const varName = right.name;
 
-      const replaceDeclarationTemplate = template(`export default %%varName%%`);
+      const replaceDeclarationTemplate = template(
+        `export default %%varName%%; `
+      );
       replaceDeclaration = replaceDeclarationTemplate({
         varName,
       });
@@ -125,9 +127,18 @@ function exports2Export(code) {
                               .join(", ")}
                             }`;
             } else {
-              // @TODO 未覆盖的逻辑
+              // eg.
+              // module.exports = {
+              //   root: true,
+              //   extends: ["scratch", "scratch/es6"],
+              //   env: {
+              //     browser: true,
+              //   },
+              // };
+              // @TODO 未覆盖的逻辑，直接使用右边的源码
               debugger;
               console.log("未覆盖的导出逻辑 1: ", right, property);
+              return `${property.key.name}: ${j(property.value).toSource()}`;
             }
           } else if (property.type === j.SpreadElement.name) {
             // eg. module.exports = { ...a }
@@ -153,17 +164,13 @@ function exports2Export(code) {
     } else if (right.type === j.NewExpression.name) {
       // module.exports = new Abc()
       const calleeName = right.callee.name;
-      const varName = `${calleeName
-        .charAt(0)
-        .toLocaleLowerCase()}${calleeName.slice(1)}`;
       const argumentsStr = right.arguments.map((arg) => arg.name).join(", ");
 
       const replaceDeclarationTemplate = template(
-        `export const %%varName%% = new %%calleeName%%(%%argumentsStr%%)`
+        `export default new %%calleeName%%(%%argumentsStr%%); `
       );
       replaceDeclaration = replaceDeclarationTemplate({
         calleeName,
-        varName,
         argumentsStr,
       });
     } else {
