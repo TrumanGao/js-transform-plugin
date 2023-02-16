@@ -13,6 +13,15 @@ const findRequire = {
   ],
 };
 
+const findRequireExpression = {
+  expression: {
+    type: j.CallExpression.name,
+    callee: {
+      name: "require",
+    },
+  },
+};
+
 // 不区分导出语法，减少循环优化性能
 const findExports = {
   expression: {
@@ -31,4 +40,4 @@ const findExports = {
   },
 };
 
-export { findRequire, findExports };
+export { findRequire, findRequireExpression, findExports };

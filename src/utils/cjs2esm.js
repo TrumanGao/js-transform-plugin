@@ -1,7 +1,11 @@
 import j from "jscodeshift";
 import babelCore from "@babel/core";
 const { template } = babelCore;
-import { findRequire, findExports } from "../constants/findTemplate.js";
+import {
+  findRequire,
+  findRequireExpression,
+  findExports,
+} from "../constants/findTemplate.js";
 import parser from "recast/parsers/typescript.js";
 
 function require2Import(code) {
@@ -13,7 +17,7 @@ function require2Import(code) {
     let replaceDeclaration; // 用于替换的表达式
 
     if (path.parent.value.type === "Program") {
-      // 根节点导入，编译为 import
+      // 根节点导入
 
       if (id.type === j.Identifier.name) {
         // eg. const a = require('my-package')
@@ -42,7 +46,7 @@ function require2Import(code) {
         console.log("未覆盖的导入逻辑 3: ", id);
       }
     } else {
-      // @TODO 嵌套导入，编译为 import()
+      // @TODO 嵌套导入
       // debugger;
       console.log("未覆盖的导入逻辑 4: ", id);
       if (id.type === j.ObjectPattern.name) {
@@ -60,6 +64,30 @@ function require2Import(code) {
           importPath,
         });
       }
+    }
+
+    if (replaceDeclaration) {
+      j(path).replaceWith(replaceDeclaration);
+    }
+  });
+
+  ast.find(j.ExpressionStatement, findRequireExpression).forEach((path) => {
+    const { arguments: _arguments } = path.value.expression;
+    const importPath = _arguments[0].value;
+    let replaceDeclaration; // 用于替换的表达式
+    if (path.parent.value.type === "Program") {
+      // 根节点导入
+      // eg. require('my-package')
+      const replaceDeclarationTemplate = template(`
+                import %%importPath%%; 
+                `);
+      replaceDeclaration = replaceDeclarationTemplate({
+        importPath,
+      });
+    } else {
+      // @TODO 嵌套导入
+      // debugger;
+      console.log("未覆盖的导入逻辑 5: ", _arguments);
     }
 
     if (replaceDeclaration) {

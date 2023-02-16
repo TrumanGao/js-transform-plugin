@@ -22,3 +22,8 @@ An ast plugin for transforming js/ts/jsx/tsx files from commonJS to ESmodule.
 
 Then js/ts/jsx/tsx files in [absolute path] will be transform from commonJS to ESmodule recursively.
 The default value of [absolute path] is process.cwd().
+
+## Dependencies
+
+[jscodeshift](https://github.com/facebook/jscodeshift)
+[@babel/core](https://babeljs.io/docs/en/babel-core)
