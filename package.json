@@ -30,7 +30,11 @@
     "esmodules"
   ],
   "dependencies": {
-    "@babel/core": "^7.17.5",
-    "jscodeshift": "^0.13.1"
+    "@babel/core": "^7.20.12",
+    "jscodeshift": "^0.14.0"
+  },
+  "devDependencies": {
+    "@types/babel__core": "^7.20.0",
+    "@types/jscodeshift": "^0.11.6"
   }
 }
