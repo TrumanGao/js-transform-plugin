@@ -20,7 +20,7 @@ function require2Import(code) {
         const varName = id.name;
 
         const replaceDeclarationTemplate = template(`
-                import { %%varName%% } from %%importPath%%
+                import %%varName%% from %%importPath%%
                 `);
         replaceDeclaration = replaceDeclarationTemplate({
           varName,
@@ -84,11 +84,7 @@ function exports2Export(code) {
       // eg. module.exports = a
       const varName = right.name;
 
-      const replaceDeclarationTemplate = template(`
-            export { 
-                %%varName%%,
-            } 
-            `);
+      const replaceDeclarationTemplate = template(`export default %%varName%%`);
       replaceDeclaration = replaceDeclarationTemplate({
         varName,
       });
