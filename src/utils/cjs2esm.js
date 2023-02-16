@@ -47,9 +47,11 @@ function require2Import(code) {
             ) {
               // eg. const { e, f: {fA, fB} } = require('my-package')
               // @TODO 无法直接转换，暂不处理
+              debugger;
               console.log("未覆盖的导入逻辑 1: ", id, property);
             } else {
               // @TODO 未覆盖的逻辑
+              debugger;
               console.log("未覆盖的导入逻辑 2: ", id, property);
             }
           })
@@ -64,10 +66,12 @@ function require2Import(code) {
         });
       } else {
         // @TODO 未覆盖的逻辑
+        debugger;
         console.log("未覆盖的导入逻辑 3: ", id);
       }
     } else {
       // @TODO 嵌套导入，编译为 import()
+      debugger;
       console.log("未覆盖的导入逻辑 4: ", id);
     }
 
@@ -124,14 +128,17 @@ function exports2Export(code) {
                             }`;
             } else {
               // @TODO 未覆盖的逻辑
+              debugger;
               console.log("未覆盖的导出逻辑 1: ", right, property);
             }
           } else if (property.type === j.SpreadElement.name) {
             // eg. module.exports = { ...a }
             // @TODO 无法直接转换，暂不处理
+            debugger;
             console.log("未覆盖的导出逻辑 2: ", right, property);
           } else {
             // @TODO 未覆盖的逻辑
+            debugger;
             console.log("未覆盖的导出逻辑 3: ", right, property);
           }
         })
@@ -163,6 +170,7 @@ function exports2Export(code) {
       });
     } else {
       // @TODO 未覆盖的逻辑
+      debugger;
       console.log("未覆盖的导出逻辑 4: ", right);
     }
 

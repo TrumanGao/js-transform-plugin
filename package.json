@@ -6,6 +6,9 @@
   "bin": {
     "js-transform": "./src/index.js"
   },
+  "scripts": {
+    "debug": "node --inspect ./src/index.js '/Users/trumangao/Code/npm/js-transform-plugin/test'"
+  },
   "type": "commonjs",
   "author": "TrumanGao",
   "license": "MIT",
