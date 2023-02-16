@@ -28,51 +28,38 @@ function require2Import(code) {
         });
       } else if (id.type === j.ObjectPattern.name) {
         // eg. const { ... } = require('my-package')
-        const varNames = id.properties
-          .map((property) => {
-            if (
-              property.key.type === j.Identifier.name &&
-              property.value.type === j.Identifier.name
-            ) {
-              if (property.key.name === property.value.name) {
-                // eg. const { b, c } = require('my-package')
-                return property.key.name;
-              } else {
-                // eg. const { d: aliasD } = require('my-package')
-                return `${property.key.name} as ${property.value.name}`;
-              }
-            } else if (
-              property.key.type === j.Identifier.name &&
-              property.value.type === j.ObjectPattern.name
-            ) {
-              // eg. const { e, f: {fA, fB} } = require('my-package')
-              // @TODO 无法直接转换，暂不处理
-              debugger;
-              console.log("未覆盖的导入逻辑 1: ", id, property);
-            } else {
-              // @TODO 未覆盖的逻辑
-              debugger;
-              console.log("未覆盖的导入逻辑 2: ", id, property);
-            }
-          })
-          .join(", ");
-
-        const replaceDeclarationTemplate = template(`
-                import { %%varNames%% } from %%importPath%%; 
-                `);
+        const { varNames, template: replaceDeclarationTemplate } =
+          replaceDeclarationTemplate_ObjectPattern({
+            id,
+          });
         replaceDeclaration = replaceDeclarationTemplate({
           varNames,
           importPath,
         });
       } else {
         // @TODO 未覆盖的逻辑
-        debugger;
+        // debugger;
         console.log("未覆盖的导入逻辑 3: ", id);
       }
     } else {
       // @TODO 嵌套导入，编译为 import()
-      debugger;
+      // debugger;
       console.log("未覆盖的导入逻辑 4: ", id);
+      if (id.type === j.ObjectPattern.name) {
+        // eg.
+        // function getCat() {
+        //   const { Cat } = require("animals");
+        //   return new Cat();
+        // }
+        const { varNames, template: replaceDeclarationTemplate } =
+          replaceDeclarationTemplate_ObjectPattern({
+            id,
+          });
+        replaceDeclaration = replaceDeclarationTemplate({
+          varNames,
+          importPath,
+        });
+      }
     }
 
     if (replaceDeclaration) {
@@ -136,18 +123,18 @@ function exports2Export(code) {
               //   },
               // };
               // @TODO 未覆盖的逻辑，直接使用右边的源码
-              debugger;
+              // debugger;
               console.log("未覆盖的导出逻辑 1: ", right, property);
               return `${property.key.name}: ${j(property.value).toSource()}`;
             }
           } else if (property.type === j.SpreadElement.name) {
             // eg. module.exports = { ...a }
             // @TODO 无法直接转换，暂不处理
-            debugger;
+            // debugger;
             console.log("未覆盖的导出逻辑 2: ", right, property);
           } else {
             // @TODO 未覆盖的逻辑
-            debugger;
+            // debugger;
             console.log("未覆盖的导出逻辑 3: ", right, property);
           }
         })
@@ -162,9 +149,11 @@ function exports2Export(code) {
         varNames,
       });
     } else if (right.type === j.NewExpression.name) {
-      // module.exports = new Abc()
+      // eg. module.exports = new Abc()
       const calleeName = right.callee.name;
-      const argumentsStr = right.arguments.map((arg) => arg.name).join(", ");
+      const argumentsStr = right.arguments
+        .map((arg) => j(arg).toSource())
+        .join(", ");
 
       const replaceDeclarationTemplate = template(
         `export default new %%calleeName%%(%%argumentsStr%%); `
@@ -173,9 +162,23 @@ function exports2Export(code) {
         calleeName,
         argumentsStr,
       });
+    } else if (right.type === j.CallExpression.name) {
+      // eg. module.exports = fun(a, b)
+      const calleeName = right.callee.name;
+      const argumentsStr = right.arguments
+        .map((arg) => j(arg).toSource())
+        .join(", ");
+
+      const replaceDeclarationTemplate = template(
+        `export default %%calleeName%%(%%argumentsStr%%); `
+      );
+      replaceDeclaration = replaceDeclarationTemplate({
+        calleeName,
+        argumentsStr,
+      });
     } else {
       // @TODO 未覆盖的逻辑
-      debugger;
+      // debugger;
       console.log("未覆盖的导出逻辑 4: ", right);
     }
 
@@ -185,6 +188,46 @@ function exports2Export(code) {
   });
 
   return ast.toSource();
+}
+
+function replaceDeclarationTemplate_ObjectPattern(option = { id: "" }) {
+  // eg. const { ... } = require('my-package')
+  const { id } = option;
+  const varNames = id.properties
+    .map((property) => {
+      if (
+        property.key.type === j.Identifier.name &&
+        property.value.type === j.Identifier.name
+      ) {
+        if (property.key.name === property.value.name) {
+          // eg. const { b, c } = require('my-package')
+          return property.key.name;
+        } else {
+          // eg. const { d: aliasD } = require('my-package')
+          return `${property.key.name} as ${property.value.name}`;
+        }
+      } else if (
+        property.key.type === j.Identifier.name &&
+        property.value.type === j.ObjectPattern.name
+      ) {
+        // eg. const { e, f: {fA, fB} } = require('my-package')
+        // @TODO 无法直接转换，暂不处理
+        // debugger;
+        console.log("未覆盖的导入逻辑 1: ", id, property);
+      } else {
+        // @TODO 未覆盖的逻辑
+        // debugger;
+        console.log("未覆盖的导入逻辑 2: ", id, property);
+      }
+    })
+    .join(", ");
+
+  return {
+    varNames,
+    template: template(`
+    import { %%varNames%% } from %%importPath%%; 
+    `),
+  };
 }
 
 export { require2Import, exports2Export };
