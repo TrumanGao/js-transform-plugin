@@ -6,7 +6,7 @@ An ast plugin for transforming js/ts/jsx/tsx files from commonJS to ESmodule.
 
 1. Enter the program which needs to be transformed.
 
-2. `npm install js-transform-plugin`
+2. `npm install -D js-transform-plugin`
 
 3. Add this script to package.json:
 
