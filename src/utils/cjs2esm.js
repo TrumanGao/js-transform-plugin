@@ -43,27 +43,12 @@ function require2Import(code) {
       } else {
         // @TODO 未覆盖的逻辑
         // debugger;
-        console.log("未覆盖的导入逻辑 3: ", id);
+        // console.log("未覆盖的导入逻辑 3: ", id);
       }
     } else {
       // @TODO 嵌套导入
       // debugger;
-      console.log("未覆盖的导入逻辑 4: ", id);
-      if (id.type === j.ObjectPattern.name) {
-        // eg.
-        // function getCat() {
-        //   const { Cat } = require("animals");
-        //   return new Cat();
-        // }
-        const { varNames, template: replaceDeclarationTemplate } =
-          replaceDeclarationTemplate_ObjectPattern({
-            id,
-          });
-        replaceDeclaration = replaceDeclarationTemplate({
-          varNames,
-          importPath,
-        });
-      }
+      // console.log("未覆盖的导入逻辑 4: ", id);
     }
 
     if (replaceDeclaration) {
@@ -87,7 +72,7 @@ function require2Import(code) {
     } else {
       // @TODO 嵌套导入
       // debugger;
-      console.log("未覆盖的导入逻辑 5: ", _arguments);
+      // console.log("未覆盖的导入逻辑 5: ", _arguments);
     }
 
     if (replaceDeclaration) {
@@ -152,18 +137,18 @@ function exports2Export(code) {
               // };
               // @TODO 未覆盖的逻辑，直接使用右边的源码
               // debugger;
-              console.log("未覆盖的导出逻辑 1: ", right, property);
+              // console.log("未覆盖的导出逻辑 1: ", right, property);
               return `${property.key.name}: ${j(property.value).toSource()}`;
             }
           } else if (property.type === j.SpreadElement.name) {
             // eg. module.exports = { ...a }
             // @TODO 无法直接转换，暂不处理
             // debugger;
-            console.log("未覆盖的导出逻辑 2: ", right, property);
+            // console.log("未覆盖的导出逻辑 2: ", right, property);
           } else {
             // @TODO 未覆盖的逻辑
             // debugger;
-            console.log("未覆盖的导出逻辑 3: ", right, property);
+            // console.log("未覆盖的导出逻辑 3: ", right, property);
           }
         })
         .join(", ");
@@ -207,7 +192,7 @@ function exports2Export(code) {
     } else {
       // @TODO 未覆盖的逻辑
       // debugger;
-      console.log("未覆盖的导出逻辑 4: ", right);
+      // console.log("未覆盖的导出逻辑 4: ", right);
     }
 
     if (replaceDeclaration) {
@@ -241,11 +226,11 @@ function replaceDeclarationTemplate_ObjectPattern(option = { id: "" }) {
         // eg. const { e, f: {fA, fB} } = require('my-package')
         // @TODO 无法直接转换，暂不处理
         // debugger;
-        console.log("未覆盖的导入逻辑 1: ", id, property);
+        // console.log("未覆盖的导入逻辑 1: ", id, property);
       } else {
         // @TODO 未覆盖的逻辑
         // debugger;
-        console.log("未覆盖的导入逻辑 2: ", id, property);
+        // console.log("未覆盖的导入逻辑 2: ", id, property);
       }
     })
     .join(", ");
