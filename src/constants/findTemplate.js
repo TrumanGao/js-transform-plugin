@@ -1,4 +1,4 @@
-const j = require("jscodeshift");
+import j from "jscodeshift";
 
 // 不区分导入语法，减少循环优化性能
 const findRequire = {
@@ -31,7 +31,4 @@ const findExports = {
   },
 };
 
-module.exports = {
-  findRequire,
-  findExports,
-};
+export { findRequire, findExports };

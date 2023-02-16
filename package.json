@@ -2,14 +2,20 @@
   "name": "js-transform-plugin",
   "version": "1.1.5",
   "description": "An ast plugin for transforming js/ts/jsx/tsx files from commonJS to ESmodule.",
-  "main": "./src/index.js",
   "bin": {
     "js-transform": "./src/index.js"
   },
   "scripts": {
+    "transform:test": "node ./src/index.js '/Users/trumangao/Code/npm/js-transform-plugin/test'",
     "debug": "node --inspect ./src/index.js '/Users/trumangao/Code/npm/js-transform-plugin/test'"
   },
-  "type": "commonjs",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": {
+      "import": "./src/index.js"
+    }
+  },
   "author": "TrumanGao",
   "license": "MIT",
   "repository": {

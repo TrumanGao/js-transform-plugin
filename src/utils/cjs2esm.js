@@ -1,11 +1,11 @@
-const j = require("jscodeshift");
-const { template } = require("@babel/core");
-const { findRequire, findExports } = require("../constants/findTemplate.js");
+import j from "jscodeshift";
+import babelCore from "@babel/core";
+const { template } = babelCore;
+import { findRequire, findExports } from "../constants/findTemplate.js";
+import parser from "recast/parsers/typescript.js";
 
 function require2Import(code) {
-  const ast = j(code, {
-    parser: require("recast/parsers/typescript"),
-  });
+  const ast = j(code, { parser });
 
   ast.find(j.VariableDeclaration, findRequire).forEach((path) => {
     const { id, init } = path.value.declarations[0];
@@ -84,9 +84,7 @@ function require2Import(code) {
 }
 
 function exports2Export(code) {
-  let ast = j(code, {
-    parser: require("recast/parsers/typescript"),
-  });
+  let ast = j(code, { parser });
 
   ast.find(j.ExpressionStatement, findExports).forEach((path) => {
     const { left, right } = path.value.expression;
@@ -182,7 +180,4 @@ function exports2Export(code) {
   return ast.toSource();
 }
 
-module.exports = {
-  require2Import,
-  exports2Export,
-};
+export { require2Import, exports2Export };

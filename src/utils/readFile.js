@@ -1,6 +1,6 @@
-const fs = require("fs");
-const path = require("path");
-const { require2Import, exports2Export } = require("./cjs2esm.js");
+import fs from "fs";
+import path from "path";
+import { require2Import, exports2Export } from "./cjs2esm.js";
 
 /**
  * transform js/ts/jsx/tsx files in specifiedPath recursively from commonJS to ESmodule
@@ -49,6 +49,4 @@ function readFile(specifiedPath) {
   });
 }
 
-module.exports = {
-  readFile,
-};
+export { readFile };
