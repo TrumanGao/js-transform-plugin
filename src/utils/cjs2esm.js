@@ -97,74 +97,37 @@ function exports2Export(code) {
 
     if (right.type === j.ObjectExpression.name) {
       // eg. module.exports = { ... }
-      // to. export { ... }
-      const varNames = right.properties
-        .map((property) => {
-          const propertyKey = j(property.key).toSource();
+      // to. export { ... } 或 export default { ... }
+      // 取决于 { ... } 是否包含表达式，esmodule 不支持 export { ... } 导出表达式。
 
-          if (property.type === j.ObjectProperty.name) {
-            if (
-              property.key.type === j.Identifier.name &&
-              property.value.type === j.Identifier.name
-            ) {
-              if (property.key.name === property.value.name) {
-                // eg. module.exports = { b, c }
-                return propertyKey;
-              } else {
-                // eg. module.exports = { d: aliasD }
-                return `${property.value.name} as ${propertyKey}`;
-              }
-            } else if (
-              property.key.type === j.Identifier.name &&
-              property.value.type === j.ObjectPattern.name
-            ) {
-              // eg. module.exports = { e, f: {fA, fB} }
-              return `${propertyKey}: {
-                            ${property.value.properties
-                              .map((p) => p.key.name)
-                              .join(", ")}
-                            }`;
-            } else if (property.key.type === j.Literal.name) {
-              // eg.
-              // module.exports = {
-              //   "package01": require("my-package")
-              // };
-              return `${propertyKey}: ${j(property.value).toSource()}`;
-            } else {
-              // eg.
-              // module.exports = {
-              //   root: true,
-              //   extends: ["scratch", "scratch/es6"],
-              //   env: {
-              //     browser: true,
-              //   },
-              // };
-              // @TODO 未覆盖的逻辑，直接使用右边的源码
-              // debugger;
-              // console.log("未覆盖的导出逻辑 1: ", right, property);
-              return `${propertyKey}: ${j(property.value).toSource()}`;
-            }
-          } else if (property.type === j.SpreadElement.name) {
-            // eg. module.exports = { ...a }
-            // @TODO 无法直接转换，暂不处理
-            // debugger;
-            // console.log("未覆盖的导出逻辑 2: ", right, property);
-          } else {
-            // @TODO 未覆盖的逻辑
-            // debugger;
-            // console.log("未覆盖的导出逻辑 3: ", right, property);
+      const hasExpression = right.properties.some(
+        (property) =>
+          j(property.key).toSource() !== j(property.value).toSource()
+      );
+
+      if (hasExpression) {
+        const rigthSource = j(right).toSource();
+
+        const replaceDeclarationTemplate = template(
+          `export default %%rigthSource%%`
+        );
+        replaceDeclaration = replaceDeclarationTemplate({
+          rigthSource,
+        });
+      } else {
+        const varNames = right.properties
+          .map((property) => property.key.name)
+          .join(", ");
+
+        const replaceDeclarationTemplate = template(`
+          export {
+              %%varNames%%
           }
-        })
-        .join(", ");
-
-      const replaceDeclarationTemplate = template(`
-            export {
-                %%varNames%%,
-            }
-            `);
-      replaceDeclaration = replaceDeclarationTemplate({
-        varNames,
-      });
+          `);
+        replaceDeclaration = replaceDeclarationTemplate({
+          varNames,
+        });
+      }
     } else if (
       right.type === j.Identifier.name ||
       right.type === j.NewExpression.name ||
@@ -178,12 +141,12 @@ function exports2Export(code) {
       // eg. module.exports = function(){}
       // eg. module.exports = ()=>{}
 
-      const rightStr = j(right).toSource();
+      const rightSource = j(right).toSource();
       const replaceDeclarationTemplate = template(
-        `export default %%rightStr%%; `
+        `export default %%rightSource%%`
       );
       replaceDeclaration = replaceDeclarationTemplate({
-        rightStr,
+        rightSource,
       });
     } else {
       // @TODO 未覆盖的逻辑
