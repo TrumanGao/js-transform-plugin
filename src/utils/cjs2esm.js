@@ -20,7 +20,8 @@ function require2Import(code) {
       // 根节点导入
 
       if (id.type === j.Identifier.name) {
-        // eg. const a = require('my-package')
+        // eg. const a = require('my-package');
+        // to. import a from 'my-package';
         const varName = id.name;
 
         const replaceDeclarationTemplate = template(`
@@ -31,7 +32,8 @@ function require2Import(code) {
           importPath,
         });
       } else if (id.type === j.ObjectPattern.name) {
-        // eg. const { ... } = require('my-package')
+        // eg. const { ... } = require('my-package');
+        // to. import { ... } from 'my-package';
         const { varNames, template: replaceDeclarationTemplate } =
           replaceDeclarationTemplate_ObjectPattern({
             id,
@@ -216,21 +218,17 @@ function replaceDeclarationTemplate_ObjectPattern(option = { id: "" }) {
   const { id } = option;
   const varNames = id.properties
     .map((property) => {
-      if (
-        property.key.type === j.Identifier.name &&
-        property.value.type === j.Identifier.name
-      ) {
+      if (property.value.type === j.Identifier.name) {
         if (property.key.name === property.value.name) {
           // eg. const { b, c } = require('my-package')
+          // to. import { b, c } from 'my-package'
           return property.key.name;
         } else {
           // eg. const { d: aliasD } = require('my-package')
+          // to. import { d as aliasD } from 'my-package'
           return `${property.key.name} as ${property.value.name}`;
         }
-      } else if (
-        property.key.type === j.Identifier.name &&
-        property.value.type === j.ObjectPattern.name
-      ) {
+      } else if (property.value.type === j.ObjectPattern.name) {
         // eg. const { e, f: {fA, fB} } = require('my-package')
         // @TODO 无法直接转换，暂不处理
         // debugger;
