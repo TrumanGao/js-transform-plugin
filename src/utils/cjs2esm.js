@@ -13,7 +13,7 @@ function require2Import(code) {
 
   ast.find(j.VariableDeclaration, findRequire).forEach((path) => {
     const { id, init } = path.value.declarations[0];
-    const importPath = init.arguments[0].value;
+    const importPath = init.arguments[0]?.value;
     let replaceDeclaration; // 用于替换的表达式
 
     if (path.parent.value.type === "Program") {
@@ -60,11 +60,14 @@ function require2Import(code) {
 
   ast.find(j.ExpressionStatement, findRequireExpression).forEach((path) => {
     const { arguments: _arguments } = path.value.expression;
-    const importPath = _arguments[0].value;
+    const importPath = _arguments[0]?.value;
     let replaceDeclaration; // 用于替换的表达式
+
     if (path.parent.value.type === "Program") {
       // 根节点导入
-      // eg. require('my-package')
+
+      // eg. require('my-package');
+      // to. import 'my-package';
       const replaceDeclarationTemplate = template(`
                 import %%importPath%%; 
                 `);
@@ -92,18 +95,9 @@ function exports2Export(code) {
     const { left, right } = path.value.expression;
     let replaceDeclaration;
 
-    if (right.type === j.Identifier.name) {
-      // eg. module.exports = a
-      const varName = right.name;
-
-      const replaceDeclarationTemplate = template(
-        `export default %%varName%%; `
-      );
-      replaceDeclaration = replaceDeclarationTemplate({
-        varName,
-      });
-    } else if (right.type === j.ObjectExpression.name) {
+    if (right.type === j.ObjectExpression.name) {
       // eg. module.exports = { ... }
+      // to. export { ... }
       const varNames = right.properties
         .map((property) => {
           const propertyKey = j(property.key).toSource();
@@ -171,33 +165,25 @@ function exports2Export(code) {
       replaceDeclaration = replaceDeclarationTemplate({
         varNames,
       });
-    } else if (right.type === j.NewExpression.name) {
+    } else if (
+      right.type === j.Identifier.name ||
+      right.type === j.NewExpression.name ||
+      right.type === j.CallExpression.name ||
+      right.type === j.FunctionExpression.name ||
+      right.type === j.ArrowFunctionExpression.name
+    ) {
+      // eg. module.exports = a
       // eg. module.exports = new Abc()
-      const calleeName = right.callee.name;
-      const argumentsStr = right.arguments
-        .map((arg) => j(arg).toSource())
-        .join(", ");
-
-      const replaceDeclarationTemplate = template(
-        `export default new %%calleeName%%(%%argumentsStr%%); `
-      );
-      replaceDeclaration = replaceDeclarationTemplate({
-        calleeName,
-        argumentsStr,
-      });
-    } else if (right.type === j.CallExpression.name) {
       // eg. module.exports = fun(a, b)
-      const calleeName = right.callee.name;
-      const argumentsStr = right.arguments
-        .map((arg) => j(arg).toSource())
-        .join(", ");
+      // eg. module.exports = function(){}
+      // eg. module.exports = ()=>{}
 
+      const rightStr = j(right).toSource();
       const replaceDeclarationTemplate = template(
-        `export default %%calleeName%%(%%argumentsStr%%); `
+        `export default %%rightStr%%; `
       );
       replaceDeclaration = replaceDeclarationTemplate({
-        calleeName,
-        argumentsStr,
+        rightStr,
       });
     } else {
       // @TODO 未覆盖的逻辑
