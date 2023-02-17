@@ -104,6 +104,8 @@ function exports2Export(code) {
       // eg. module.exports = { ... }
       const varNames = right.properties
         .map((property) => {
+          const propertyKey = j(property.key).toSource();
+
           if (property.type === j.ObjectProperty.name) {
             if (
               property.key.type === j.Identifier.name &&
@@ -111,21 +113,27 @@ function exports2Export(code) {
             ) {
               if (property.key.name === property.value.name) {
                 // eg. module.exports = { b, c }
-                return property.key.name;
+                return propertyKey;
               } else {
                 // eg. module.exports = { d: aliasD }
-                return `${property.value.name} as ${property.key.name}`;
+                return `${property.value.name} as ${propertyKey}`;
               }
             } else if (
               property.key.type === j.Identifier.name &&
               property.value.type === j.ObjectPattern.name
             ) {
               // eg. module.exports = { e, f: {fA, fB} }
-              return `${property.key.name}: {
+              return `${propertyKey}: {
                             ${property.value.properties
                               .map((p) => p.key.name)
                               .join(", ")}
                             }`;
+            } else if (property.key.type === j.Literal.name) {
+              // eg.
+              // module.exports = {
+              //   "package01": require("my-package")
+              // };
+              return `${propertyKey}: ${j(property.value).toSource()}`;
             } else {
               // eg.
               // module.exports = {
@@ -138,7 +146,7 @@ function exports2Export(code) {
               // @TODO 未覆盖的逻辑，直接使用右边的源码
               // debugger;
               // console.log("未覆盖的导出逻辑 1: ", right, property);
-              return `${property.key.name}: ${j(property.value).toSource()}`;
+              return `${propertyKey}: ${j(property.value).toSource()}`;
             }
           } else if (property.type === j.SpreadElement.name) {
             // eg. module.exports = { ...a }
