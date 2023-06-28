@@ -7,7 +7,7 @@ An ast plugin for transforming js/ts/jsx/tsx files from commonJS to ESmodule. He
 ## Usage:
 
 1. ```bash
-    npm install -D js-transform-plugin
+   npm install -D js-transform-plugin
    ```
 
    项目内安装依赖 js-transform-plugin
@@ -25,7 +25,7 @@ An ast plugin for transforming js/ts/jsx/tsx files from commonJS to ESmodule. He
    ```
 
 3. ```bash
-    npm run transform [absolute path]
+   npm run transform [absolute path]
    ```
 
    执行代码转化 script
