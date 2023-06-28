@@ -1,6 +1,6 @@
 {
   "name": "js-transform-plugin",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "description": "An ast plugin for transforming js/ts/jsx/tsx files from commonJS to ESmodule.",
   "bin": {
     "js-transform": "./src/index.js"
