@@ -4,7 +4,7 @@
   <h1>js-transform-plugin</h1>
 </div>
 
-代码转化 AST 工具，用于将指定目录内所有 js/ts/jsx/tsx 文件的模块导入导出语法由 commonJS 递归转化为 ESmodule。[效果示例](https://github.com/TrumanGao/js-transform-plugin#examples)
+代码转化 AST 工具，用于将指定目录内所有 js/ts/jsx/tsx 文件的模块导入导出语法由 commonJS 递归转化为 ESmodule。[效果示例](https://github.com/TrumanGao/js-transform-plugin/blob/main/README.zh.md#examples)
 
 [![license](https://img.shields.io/github/license/TrumanGao/js-transform-plugin?style=flat-square)](https://en.wikipedia.org/wiki/MIT_License)
 
