@@ -1,10 +1,10 @@
-English | [简体中文](./README.zh.md)
+简体中文 | [English](./README.md)
 
 <div align="center">
   <h1>js-transform-plugin</h1>
 </div>
 
-An ast plugin for transforming js/ts/jsx/tsx files from commonJS to ESmodule. Here for the [examples](https://github.com/TrumanGao/js-transform-plugin#examples).
+代码转化 AST 工具，用于将指定目录内所有 js/ts/jsx/tsx 文件的模块导入导出语法由 commonJS 递归转化为 ESmodule。[效果示例](https://github.com/TrumanGao/js-transform-plugin#examples)
 
 [![license](https://img.shields.io/github/license/TrumanGao/js-transform-plugin?style=flat-square)](https://en.wikipedia.org/wiki/MIT_License)
 
@@ -12,11 +12,13 @@ An ast plugin for transforming js/ts/jsx/tsx files from commonJS to ESmodule. He
 
 ## Usage
 
-1. ```bash
+1. 项目内安装
+
+   ```bash
    npm install -D js-transform-plugin
    ```
 
-2. Add this script to package.json
+2. package.json 文件添加代码转化 script
 
    ```json
    {
@@ -26,59 +28,58 @@ An ast plugin for transforming js/ts/jsx/tsx files from commonJS to ESmodule. He
    }
    ```
 
-3. ```bash
+3. 执行代码转化 script
+   ```bash
    npm run transform [absolute path]
    ```
-   - The default value of [absolute path] is process.cwd().
-   - The configuration of ignored files has not been supported. To avoid transforming node_modules dir, you can provide param, like, the absolute path of src dir. Or easier, just delete node_modules dir.
-
-- Then js/ts/jsx/tsx files in [absolute path] will be transformed from commonJS to ESmodule recursively.
+   - 可选参数 [absolute path] 为目标目录的绝对路径。不传则默认 process.cwd()，即执行命令行的路径。
+   - 暂不支持配置忽略文件夹。为避免转化 node_modules，建议将参数设置为 src 目录的绝对路径，或直接删除 node_modules 后再执行。
 
 ## Examples
 
 ```js
-// before
+// 转化前
 const a = require("my-package");
 
-// after
+// 转化后
 import a from "my-package";
 ```
 
 ```js
-// before
+// 转化前
 const { a, b, c } = require("my-package");
 
-// after
+// 转化后
 import { a, b, c } from "my-package";
 ```
 
 ```js
-// before
+// 转化前
 require("my-package");
 
-// after
+// 转化后
 import "my-package";
 ```
 
 ```js
-// before
+// 转化前
 module.exports = { ... }
 
-// after
+// 转化后
 export { ... }
 // or
 export default { ... }
 ```
 
 ```js
-// before
+// 转化前
 module.exports = abc;
 module.exports = new Abc();
 module.exports = fun(a, b);
 module.exports = function(){};
 module.exports = () => {};
 
-// after
+// 转化后
 export default abc;
 export default new Abc();
 export default fun(a, b);
@@ -87,18 +88,18 @@ export default () => {};
 ```
 
 ```js
-// before
+// 转化前
 const { b, c } = require("my-package");
 
-// after
+// 转化后
 import { b, c } from "my-package";
 ```
 
 ```js
-// before
+// 转化前
 const { d: aliasD } = require("my-package");
 
-// after
+// 转化后
 import { d as aliasD } from "my-package";
 ```
 
