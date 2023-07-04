@@ -6,7 +6,7 @@ English | [简体中文](./README.zh.md)
 
 An ast plugin for transforming js/ts/jsx/tsx files from commonJS to ESmodule. Here for the [examples](https://github.com/TrumanGao/js-transform-plugin#examples).
 
-[![license](https://img.shields.io/github/license/TrumanGao/js-transform-plugin?style=flat-square)](https://en.wikipedia.org/wiki/MIT_License)
+[![license](https://img.shields.io/github/license/trumangao/js-transform-plugin?style=flat-square)](https://en.wikipedia.org/wiki/MIT_License)
 
 ---
 
