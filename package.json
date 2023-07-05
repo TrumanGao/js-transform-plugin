@@ -7,7 +7,10 @@
   },
   "scripts": {
     "transform:test": "node ./src/index.js '/Users/trumangao/Code/npm/js-transform-plugin/test'",
-    "debug": "node --inspect ./src/index.js '/Users/trumangao/Code/npm/js-transform-plugin/test'"
+    "debug": "node --inspect ./src/index.js '/Users/trumangao/Code/npm/js-transform-plugin/test'",
+    "patch": "npm version patch",
+    "minor": "npm version minor",
+    "major": "npm version major"
   },
   "type": "module",
   "main": "./src/index.js",
